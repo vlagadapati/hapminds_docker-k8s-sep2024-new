@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-world-pod
+  labels:
+    app: hello-world
+  annotations:
+    description: "hello world pod"
+spec:
+  containers:
+  - name: hello-world
+    image: dockrtraining/hello-world-docker
+    ports:
+    - containerPort: 8080

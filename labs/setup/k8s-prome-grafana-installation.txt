@@ -1,0 +1,36 @@
+
+Prometheus & Grafana setup using Helm charts
+=============================================
+
+Ref: https://www.coachdevops.com/2022/05/how-to-setup-monitoring-on-kubernetes.html
+
+STEP 1: Add Stable Repo
+
+helm repo add stable https://charts.helm.sh/stable
+		
+STEP 2: Add Prometheus Repo
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+		
+STEP 3: Add prometheus namespace
+
+kubectl create namespace prometheus
+		
+STEP 4: Install prometheus stack
+helm install stable prometheus-community/kube-prometheus-stack -n prometheus
+
+		
+STEP 5: Verify the pods created
+
+kubectl get pods -n prometheus
+
+
+STEP 6: Verify the services created
+
+kubectl get sec -n prometheus
+
+
+STEP 7: Access the Dashboard (Get the url from services. Also enable LoadBalancer type for all services)
+
+UserName: admin 
+Password: prom-operator

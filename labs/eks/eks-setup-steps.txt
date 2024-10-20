@@ -1,0 +1,106 @@
+
+### EKS Cluster Setup (Node Group) instructions thru Management Console
+
+STEP 1: Login into AWS Management Console and navigate to EKS dashboard
+STEP 2: Create EKS cluster with default settings
+STEP 3: Create new IAM Role for EKS following the instructions given in the Wizard
+		Role Name: eksTrainingClusterRole
+		
+		Policy: AmazonEKSClusterPolicy
+
+STEP 4: Wait for Cluster to become active. Cluster provisioning may take around 10-15 mins.
+
+STEP 6: Create NodeGroup from Compute tab
+STEP 7: Create Node IAM Role as follows and associate with NodeGroup
+		Role Name: eksTrainingWorkerNodeRole
+		
+		Policies: AmazonEC2ContainerRegistryReadOnly
+				AmazonEKS_CNI_Policy
+				AmazonEKSWorkerNodePolicy
+
+STEP 8: Configure Compute, Scaling and Networking settings (proceed with defaults)
+STEP 9: Wait for Nodes (Group) to become active. Node Group provisioning may take around 5 mins.
+
+STEP 10: Generate Access Key ID and Secret Access Key from AWS Management Console -> Security Credentials. Download the key file and keep it safe future reference.
+
+### Connect to EKS cluster from client
+
+STEP 1: Install aws cli on the client vm (ubuntu)
+
+  	sudo apt update
+  	sudo apt install unzip -y
+  	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  	unzip awscliv2.zip
+  	sudo ./aws/install
+  	aws --version
+  	rm -rf awscliv2.zip aws
+
+STEP 2: Configure aws cli to connect to AWS Account
+	aws configure
+	<Enter Access Key ID>
+	<Enter Secret Access Key>
+	<Enter region as ap-south-1>
+	<Enter format as json>
+
+STEP 3: Update kube config/context to refer to AWS EKS cluster
+
+	aws eks --region ap-south-1 update-kubeconfig --name <eks-cluster-name>
+
+STEP 4: Check the Kubectl current context
+	
+	kubectl config get-contexts
+	kubectl config current-context
+
+STEP 5: Verify cluster connectivity and list nodes
+	
+	kubectl get nodes
+	kubectl get namespaces
+	kubectl get pods
+
+STEP 6: Deploy some workloads and verify
+	
+STEP 7: Switch Kubectl context to refer minikube or other cluster (optional)
+
+	kubectl config use-context <context-name>
+
+
+
+### EKS Cluster Setup (Fargate) instructions thru CLI
+
+STEP 1: Setup eksetl on the client vm (ubuntu)
+
+	### eksetl setup instructions
+
+	# for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+	ARCH=amd64
+	PLATFORM=$(uname -s)_$ARCH
+
+	curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+
+	# (Optional) Verify checksum
+	curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+
+	tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+
+	sudo mv /tmp/eksctl /usr/local/bin
+
+STEP 2: Create EKS cluster (Fargate)
+
+	eksctl create cluster --name eks-demo-cluster-fargate --region ap-south-1 --fargate
+
+STEP 3: Wait for Cluster create comment to complete. Cluster provisioning may take around 10-15 mins. (Kubectl context will updated to point to this cluster)
+
+STEP 4: Check the Kubectl current context
+	
+	kubectl config get-contexts
+	kubectl config current-context
+
+STEP 5: Verify cluster connectivity and list nodes
+	
+	kubectl get nodes
+	kubectl get namespaces
+	kubectl get pods
+
+STEP 6: Deploy some workloads and verify
+	
+

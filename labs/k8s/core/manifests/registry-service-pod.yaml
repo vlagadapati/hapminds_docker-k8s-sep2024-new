@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: registry-service
+spec:
+  containers:
+  - name: registry-service
+    image: dockrtraining/scart-registry-service:v1
+    ports:
+    - containerPort: 8761

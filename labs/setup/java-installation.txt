@@ -1,0 +1,25 @@
+		
+*nix (ubuntu)
+========
+
+STEP 1: Update the package index
+		sudo apt update
+		
+STEP 2: Install java
+		sudo apt install openjdk-17-jdk
+		
+STEP 3:	Verify installation
+		java -version
+		
+STEP 4: Set Java 17 as Default (Optional)
+		sudo update-alternatives --config java
+
+STEP 5: Set JAVA_HOME Environment Variable (Optional)
+		sudo nano /etc/environment
+		JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+		Save and exit the file (CTRL+X, then Y to confirm changes).
+
+		
+STEP 6: Reload the environment variables:
+		source /etc/environment
+		echo $JAVA_HOME

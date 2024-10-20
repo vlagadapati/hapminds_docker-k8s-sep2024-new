@@ -1,0 +1,62 @@
+		
+
+#Working with repositories
+helm repo list
+helm repo add
+helm repo update
+helm repo remove
+
+# Install chart repository
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+# List charts from repo
+helm search repo bitnami
+
+# Make sure we get the latest list of charts
+helm repo update
+
+# Install mysql chart / release
+helm install bitnami/mysql --generate-name
+
+# Show chart details
+helm show chart bitnami/mysql
+
+# List helm charts
+helm list
+
+# Uninstall a release
+helm uninstall mysql-<release-id>
+
+
+### Wordpress installation
+helm install happy-panda bitnami/wordpress
+helm status happy-panda
+helm show values bitnami/wordpress
+
+echo '{mariadb.auth.database: user0db, mariadb.auth.username: user0}' > values.yaml
+helm install -f values.yaml bitnami/wordpress --generate-name
+
+
+#Upgrading the release
+echo "mariadb.auth.username: user1" >> panda.yaml
+helm get values happy-panda
+helm upgrade -f panda.yaml happy-panda bitnami/wordpress
+helm get values happy-panda
+
+#Rollback
+helm rollback happy-panda 1
+
+#Uninstall
+helm uninstall happy-panda
+
+
+
+#Custom chart creation
+helm create hello-world
+
+helm install <full name override> <chart name>/ --values <chart name>/values.yaml
+
+helm install hello-world-chart hello-world/ --values hello-world/values.yaml
+
+
+Ref: https://phoenixnap.com/kb/create-helm-chart

@@ -1,0 +1,109 @@
+Docker best practices to create more efficient, secure, and maintainable containers.
+
+### 1. Use Small Base Images
+   - Minimize Image Size: Choose lightweight images like Alpine, which are smaller and help reduce the attack surface and speed up deployment.
+   - FROM alpine: Use minimalistic base images to reduce overhead.
+
+### 2. Leverage Multi-Stage Builds
+   - Optimize Build Time: Multi-stage builds help you keep your final image small by separating the build environment from the runtime environment.
+   - Dockerfile
+     # Build stage
+     FROM golang AS builder
+     WORKDIR /app
+     COPY . .
+     RUN go build -o myapp
+
+     # Runtime stage
+     FROM alpine
+     COPY --from=builder /app/myapp /usr/local/bin/myapp
+     CMD ["myapp"]
+
+### 3. Use .dockerignore
+   - Ignore Unnecessary Files: Similar to `.gitignore`, use a `.dockerignore` file to avoid copying unnecessary files into the image (e.g., logs, `.git`, or node_modules).
+   - Example `.dockerignore`:
+     .git
+     node_modules
+     *.log
+     
+### 4. Set Explicit Image Tags
+   - Avoid Latest: Instead of using `:latest`, use specific version tags for images to avoid unexpected updates that might break functionality.
+   - Dockerfile
+     FROM python:3.9-slim
+
+### 5. Minimize Layers
+   - Combine Commands: Group related operations into a single `RUN` statement to reduce the number of layers in your image.
+   - Dockerfile
+     RUN apt-get update && apt-get install -y \
+         curl \
+         vim \
+         && apt-get clean
+
+### 6. Use Immutable Tags for External Dependencies
+   - Ensure Stability: Lock dependencies (OS packages, third-party libraries, etc.) to specific versions to avoid breaking changes during image rebuilds.
+   - Dockerfile
+     RUN apt-get install -y python3.9=3.9.0-1
+     
+
+### 7. Use Non-Root Users**
+   - Security Best Practice**: Run processes as a non-root user inside containers to minimize the damage potential in case of a breach.
+   - Dockerfile
+     RUN adduser --disabled-password appuser
+     USER appuser
+
+
+### 8. Keep Containers Stateless
+   - Design for Ephemerality: Store persistent data outside of the container using volumes, databases, or external storage services. This ensures that containers can be easily replaced or scaled.
+   - docker run -v /data:/app/data myapp
+
+
+### 9. Use Health Checks
+   - Monitor Container Health**: Add health checks to monitor and ensure the containerized application is running correctly.
+   - Dockerfile
+     HEALTHCHECK --interval=30s --timeout=10s \
+         CMD curl --fail http://localhost:8080/health || exit 1
+  
+
+### 10. Label Images
+   - Add Metadata: Use labels to include additional metadata in the image (e.g., version, maintainer info).
+   - Dockerfile
+     LABEL maintainer="yourname@example.com"
+    
+
+### 11. Clean Up After Installation
+   - Reduce Image Size: Remove unnecessary files, caches, and temporary files after installing dependencies to keep the image lean.
+   - Dockerfile
+     RUN apt-get install -y build-essential \
+         && rm -rf /var/lib/apt/lists/*
+     
+
+### 12. Use Named Volumes for Persistence
+   - Manage Data Efficiently: Use named volumes or bind mounts to persist data outside of the container’s lifecycle.
+   - docker run -v myvolume:/app/data myapp
+     
+
+### 13. Limit Resource Usage
+   - Prevent Resource Overconsumption: Limit the CPU and memory available to the container to avoid performance issues.
+   - docker run --memory=256m --cpus=1 myapp
+
+
+### 14. Keep Secrets Out of Images
+   - Handle Secrets Securely: Use environment variables, Docker secrets, or external secret management systems to handle sensitive data.
+   - docker run -e "DB_PASSWORD=supersecretpassword" myapp
+   
+
+### 15. Regularly Update Base Images
+   - Stay Secure: Keep your base images up to date with the latest security patches.
+   - Use tools like [Snyk](https://snyk.io) or [Clair](https://github.com/quay/clair) to scan images for vulnerabilities.
+
+### 16. Monitor and Log Containers
+   - Enable Logging: Use centralized logging solutions (e.g., ELK stack) or cloud-native services to monitor and troubleshoot your containers.
+   - docker run --log-driver=json-file --log-opt max-size=10m myapp
+
+
+### 17. Use Container Orchestration
+   - Scaling and Management: Use orchestration platforms like Kubernetes or Docker Swarm for production workloads, enabling easy scaling, service discovery, and load balancing.
+
+
+### 18. Automate Image Builds and Deployments
+   - CI/CD Integration: Use CI/CD pipelines to automatically build, test, and deploy Docker images, ensuring consistent and repeatable builds.
+   - Tools: Jenkins, GitHub Actions, GitLab CI
